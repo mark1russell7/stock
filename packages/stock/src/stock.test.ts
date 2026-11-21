@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { addDays, dayOf, isoOf } from "./dates.ts";
-import { amounts, byDue, drawFirstExpiring, dueDate, foldLog, isUsable, rotationDate, rotationTasks, tasksWithin } from "./index.ts";
-import type { Lot, ProductYield, StockEvent } from "./index.ts";
+import { amounts, byDue, drawFirstExpiring, dueDate, foldLog, isUsable, rotationDate, rotationTasks, stockLog, tasksWithin } from "./index.ts";
+import type { LogStorage, Lot, ProductYield, StockEvent } from "./index.ts";
 
 // The invented household of the shared contract of the prep program (fixtures/example.ts). Its values are invented.
 const AT = "2026-12-01";
@@ -112,14 +112,72 @@ describe("the log", () => {
   });
 
   it("tells each event that it cannot apply, and continues", () => {
-    const s = foldLog([
+    const bad: StockEvent[] = [
       add("e1", "2026-10-01T10:00:00Z", lot("lot-beans")),
       add("e1", "2026-10-01T10:00:00Z", lot("lot-rice")),
       { id: "e2", kind: "use", at: "2026-10-02T00:00:00Z", lot: "lot-x", units: 1 },
       { id: "e3", kind: "use", at: "2026-10-03T00:00:00Z", lot: "lot-beans", units: 20 },
-    ]);
-    expect(s.lots).toEqual([]);
+    ];
+    const s = foldLog(bad);
     expect(s.problems).toHaveLength(3);
+    expect(s.problems[0]).toMatch(/the event e1 has two different bodies/);
+    // Of two bodies of one id, the fold keeps the same body for each order of arrival.
+    expect(foldLog([...bad].reverse())).toEqual(s);
+    expect(foldLog([bad[1] as StockEvent, bad[0] as StockEvent, bad[3] as StockEvent, bad[2] as StockEvent])).toEqual(s);
+  });
+
+  it("sees a copy with its keys in another order as the same event", () => {
+    const e = add("e1", "2026-10-01T10:00:00Z", lot("lot-beans"));
+    const { bought, due, id, place, price, product, units } = lot("lot-beans");
+    const copy = JSON.parse(JSON.stringify({ lot: { price, units, product, place, id, due, bought }, at: e.at, kind: e.kind, id: e.id })) as StockEvent;
+    expect(foldLog([e, copy]).problems).toEqual([]);
+  });
+});
+
+describe("the log on a storage", () => {
+  const memory = (): LogStorage & { readonly items: Map<string, StockEvent> } => {
+    const items = new Map<string, StockEvent>();
+    return {
+      items,
+      get: async (id) => items.get(id),
+      getAll: async () => [...items.values()],
+      set: async (id, value) => {
+        items.set(id, value);
+      },
+    };
+  };
+  const e1: StockEvent = { id: "e1", kind: "add", at: "2026-10-01T10:00:00Z", lot: lot("lot-beans") };
+  const e2: StockEvent = { id: "e2", kind: "use", at: "2026-10-05T18:00:00Z", lot: "lot-beans", units: 2 };
+
+  it("adds each event one time, with its id as the key", async () => {
+    const storage = memory();
+    const log = stockLog(storage);
+    expect(await log.append(e1)).toBe("added");
+    expect(await log.append(e2)).toBe("added");
+    expect(await log.append({ ...e1 })).toBe("present");
+    expect([...storage.items.keys()]).toEqual(["e1", "e2"]);
+    expect((await log.state()).lots).toEqual([{ ...lot("lot-beans"), units: 10 }]);
+    expect(await log.events()).toHaveLength(2);
+  });
+
+  it("refuses an id with a different body, and an event with no id", async () => {
+    const log = stockLog(memory());
+    await log.append(e1);
+    await expect(log.append({ ...e1, at: "2026-10-02T00:00:00Z" })).rejects.toThrow(RangeError);
+    await expect(log.append({ ...e1, id: "" })).rejects.toThrow(RangeError);
+  });
+
+  it("merges two copies of the log as a union, with no conflict", async () => {
+    const a = memory();
+    const b = memory();
+    await stockLog(a).append(e1);
+    await stockLog(b).append(e1);
+    await stockLog(b).append(e2);
+    // A sync copies the items of each copy into the other. The fold of the union is the same on the two sides.
+    for (const [id, v] of b.items) a.items.set(id, v);
+    for (const [id, v] of a.items) b.items.set(id, v);
+    expect(await stockLog(a).state()).toEqual(await stockLog(b).state());
+    expect((await stockLog(a).state()).problems).toEqual([]);
   });
 });
 

@@ -7,3 +7,5 @@ export type { Draw, DrawPlan } from "./stock.ts";
 export { foldLog } from "./log.ts";
 export type { RemovedLot, StockState } from "./log.ts";
 export { rotationDate, rotationTasks, tasksWithin } from "./schedule.ts";
+export { stockLog } from "./store.ts";
+export type { AppendResult, LogStorage, StockLog } from "./store.ts";
