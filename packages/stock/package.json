@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json.schemastore.org/package",
+  "name": "@mark1russell7/stock",
+  "version": "0.1.0",
+  "description": "Stock with due dates: lots, due rules as data, first expiring first out, rotation dates and the fold of an append-only log. The core names no kind of item.",
+  "keywords": [
+    "stock",
+    "inventory",
+    "lots",
+    "expiry",
+    "fefo",
+    "rotation",
+    "typescript"
+  ],
+  "homepage": "https://github.com/mark1russell7/stock#readme",
+  "bugs": {
+    "url": "https://github.com/mark1russell7/stock/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mark1russell7/stock.git",
+    "directory": "packages/stock"
+  },
+  "license": "MIT",
+  "author": "Mark Russell (https://github.com/mark1russell7)",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "build",
+    "src",
+    "!src/**/*.test.ts"
+  ],
+  "engines": {
+    "node": ">=22.12"
+  },
+  "publishConfig": {
+    "access": "public",
+    "main": "./build/index.js",
+    "types": "./build/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./build/index.d.ts",
+        "default": "./build/index.js"
+      },
+      "./package.json": "./package.json"
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.test.json"
+  },
+  "devDependencies": {
+    "@mark1russell7/cue": "^2.0.0",
+    "@types/node": "^26.6.5",
+    "@vitest/coverage-v8": "^5.0.3",
+    "tsdown": "^0.23.7",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3"
+  }
+}

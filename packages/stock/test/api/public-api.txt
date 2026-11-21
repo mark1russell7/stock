@@ -1,0 +1,154 @@
+# The public API of @mark1russell7/stock
+#
+# The names of each entry of the exports field, and the declaration of each name, without comments
+# and private members. The command `api-report check` compares this file with the built .d.ts files.
+# To accept a change of the API, start the build, then `api-report update`, and review the diff.
+
+## . (build/index.d.ts): names
+
+type Draw: build/index.d.ts#Draw
+type DrawPlan: build/index.d.ts#DrawPlan
+type DueRule: build/index.d.ts#DueRule
+type IsoDate: build/index.d.ts#IsoDate
+type Lot: build/index.d.ts#Lot
+type PlaceId: build/index.d.ts#PlaceId
+type ProductYield: build/index.d.ts#ProductYield
+type RemoveReason: build/index.d.ts#RemoveReason
+type RemovedLot: build/index.d.ts#RemovedLot
+type SourceId: build/index.d.ts#SourceId
+type StockEvent: build/index.d.ts#StockEvent
+type StockState: build/index.d.ts#StockState
+type Task: build/index.d.ts#Task
+amounts: build/index.d.ts#amounts
+byDue: build/index.d.ts#byDue
+drawFirstExpiring: build/index.d.ts#drawFirstExpiring
+dueDate: build/index.d.ts#dueDate
+foldLog: build/index.d.ts#foldLog
+isUsable: build/index.d.ts#isUsable
+rotationDate: build/index.d.ts#rotationDate
+rotationTasks: build/index.d.ts#rotationTasks
+tasksWithin: build/index.d.ts#tasksWithin
+
+## Declarations
+
+### build/index.d.ts#Draw
+interface Draw {
+  readonly lot: string;
+  readonly units: number;
+}
+
+### build/index.d.ts#DrawPlan
+interface DrawPlan {
+  readonly draws: readonly Draw[];
+  readonly short: number;
+}
+
+### build/index.d.ts#DueRule
+type DueRule = {
+  readonly kind: "label";
+} | {
+  readonly kind: "days";
+  readonly days: number;
+  readonly source: SourceId;
+};
+
+### build/index.d.ts#IsoDate
+type IsoDate = string;
+
+### build/index.d.ts#Lot
+interface Lot {
+  readonly id: string;
+  readonly product: string;
+  readonly place: PlaceId;
+  readonly units: number;
+  readonly bought: IsoDate;
+  readonly due: IsoDate;
+  readonly price?: number;
+}
+
+### build/index.d.ts#PlaceId
+type PlaceId = string;
+
+### build/index.d.ts#ProductYield
+interface ProductYield {
+  readonly product: string;
+  readonly resource: string;
+  readonly perUnit: number;
+  readonly due: DueRule;
+}
+
+### build/index.d.ts#RemoveReason
+type RemoveReason = "due" | "lost" | "moved";
+
+### build/index.d.ts#RemovedLot
+interface RemovedLot {
+  readonly lot: Lot;
+  readonly at: string;
+  readonly why: RemoveReason;
+}
+
+### build/index.d.ts#SourceId
+type SourceId = string;
+
+### build/index.d.ts#StockEvent
+type StockEvent = {
+  readonly id: string;
+  readonly kind: "add";
+  readonly at: string;
+  readonly lot: Lot;
+} | {
+  readonly id: string;
+  readonly kind: "use";
+  readonly at: string;
+  readonly lot: string;
+  readonly units: number;
+} | {
+  readonly id: string;
+  readonly kind: "remove";
+  readonly at: string;
+  readonly lot: string;
+  readonly why: RemoveReason;
+};
+
+### build/index.d.ts#StockState
+interface StockState {
+  readonly lots: readonly Lot[];
+  readonly removed: readonly RemovedLot[];
+  readonly problems: readonly string[];
+}
+
+### build/index.d.ts#Task
+interface Task {
+  readonly id: string;
+  readonly kind: "rotate" | "check" | "drill" | "review" | "buy";
+  readonly due: IsoDate;
+  readonly ref: string;
+  readonly title: string;
+}
+
+### build/index.d.ts#amounts
+export declare function amounts(lots: readonly Lot[], yields: readonly ProductYield[], at: IsoDate): Map<string, number>;
+
+### build/index.d.ts#byDue
+export declare function byDue(lots: readonly Lot[]): Lot[];
+
+### build/index.d.ts#drawFirstExpiring
+export declare function drawFirstExpiring(lots: readonly Lot[], product: string, units: number, at: IsoDate): DrawPlan;
+
+### build/index.d.ts#dueDate
+export declare function dueDate(rule: DueRule, bought: IsoDate, label?: IsoDate): IsoDate;
+
+### build/index.d.ts#foldLog
+export declare function foldLog(events: Iterable<StockEvent>): StockState;
+
+### build/index.d.ts#isUsable
+export declare function isUsable(lot: Lot, at: IsoDate): boolean;
+
+### build/index.d.ts#rotationDate
+export declare function rotationDate(lot: Lot, useRate: number, leadDays: number): IsoDate;
+
+### build/index.d.ts#rotationTasks
+export declare function rotationTasks(at: IsoDate, lots: readonly Lot[], useRates: Readonly<Record<string, number>>, leadDays: number): Task[];
+
+### build/index.d.ts#tasksWithin
+export declare function tasksWithin(tasks: readonly Task[], at: IsoDate, days: number): Task[];
