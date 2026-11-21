@@ -7,7 +7,7 @@ This file is the plan of stock. The Status page of the site reads it, and the tr
 | R1 | The first package | done | The package `@mark1russell7/stock`: lots, due rules, the usable amount at a date, first expiring first out, the fold of the log, rotation tasks. |
 | S2 | The first npm release | open | The owner bootstraps the new package `@mark1russell7/stock` at 0.1.0. |
 | S3 | The contract types move here | open | The shared contract of the prep program imports `DueRule`, `ProductYield`, `Lot`, `StockEvent` and `Task` from this package. |
-| S4 | The recurrence rule | open | A pull request adds calendar dates and a recurrence rule to `@mark1russell7/algebra/clock`. Then the private date file of this package goes. |
+| S4 | The recurrence rule | done | `@mark1russell7/algebra` 0.9.10 has calendar dates and a recurrence rule (systems PR 636). The stock uses them, and `dates.ts` keeps only the error contract. |
 | S5 | Checks, drills, reviews and buys | open | The schedule also gives a task for each device check, drill, source review and purchase, from the recurrence rule. |
 | S6 | The FoodKeeper defaults | open | An add-on dataset gives the default shelf life of each food from the USDA FoodKeeper data (CC0), with its license. |
 | S7 | The log on the sync engine | open | The log is a collection of `client-store`, with no second store. |

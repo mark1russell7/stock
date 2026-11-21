@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/package",
   "name": "@mark1russell7/stock",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Stock with due dates: lots, due rules as data, first expiring first out, rotation dates and the fold of an append-only log. The core names no kind of item.",
   "keywords": [
     "stock",
@@ -56,6 +56,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.test.json"
+  },
+  "dependencies": {
+    "@mark1russell7/algebra": "^0.9.10"
   },
   "devDependencies": {
     "@mark1russell7/cue": "^2.0.0",

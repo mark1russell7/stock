@@ -25,4 +25,4 @@ tasksWithin(rotationTasks("2026-12-01", lots, { can: 0 }, 7), "2026-12-01", 30);
 
 ## Planned
 
-The roadmap of the repository (`docs/ROADMAP.md`) has the next items. The first items are the recurrence rule in `@mark1russell7/algebra/clock` and the tasks of checks and drills. Then come the FoodKeeper defaults as an add-on dataset, and the log on the collections of `client-store`.
+The roadmap of the repository (`docs/ROADMAP.md`) has the next items. The first item is the tasks of checks and drills, on the recurrence rule of `@mark1russell7/algebra/clock`. Then come the FoodKeeper defaults as an add-on dataset, and the log on the collections of `client-store`.
