@@ -126,6 +126,34 @@ describe("the log", () => {
     expect(foldLog([bad[1] as StockEvent, bad[0] as StockEvent, bad[3] as StockEvent, bad[2] as StockEvent])).toEqual(s);
   });
 
+  it("applies a correction to the lot with the same id, at its place in the list, for each order of the events", () => {
+    const fixed: Lot = { ...lot("lot-beans"), units: 30, due: "2029-01-01" };
+    const log: StockEvent[] = [
+      add("e1", "2026-10-01T10:00:00Z", lot("lot-beans")),
+      add("e2", "2026-10-01T10:01:00Z", lot("lot-rice")),
+      { id: "e3", kind: "use", at: "2026-10-02T18:00:00Z", lot: "lot-beans", units: 2 },
+      { id: "e4", kind: "correct", at: "2026-10-03T09:00:00Z", lot: fixed },
+      { id: "e5", kind: "use", at: "2026-10-04T18:00:00Z", lot: "lot-beans", units: 1 },
+    ];
+    const want = foldLog(log);
+    expect(want.lots).toEqual([{ ...fixed, units: 29 }, lot("lot-rice")]);
+    expect(want.problems).toEqual([]);
+    expect(foldLog([...log].reverse())).toEqual(want);
+  });
+
+  it("refuses a correction of a lot that is not in the stock, and a correction to no units", () => {
+    const s = foldLog([
+      add("e1", "2026-10-01T10:00:00Z", lot("lot-beans")),
+      { id: "e2", kind: "correct", at: "2026-10-02T00:00:00Z", lot: lot("lot-rice") },
+      { id: "e3", kind: "correct", at: "2026-10-03T00:00:00Z", lot: { ...lot("lot-beans"), units: 0 } },
+    ]);
+    expect(s.lots).toEqual([lot("lot-beans")]);
+    expect(s.problems).toEqual([
+      "the event e2 corrects the lot lot-rice, which is not in the stock",
+      "the event e3 corrects the lot lot-beans to 0 units: use a remove event",
+    ]);
+  });
+
   it("sees a copy with its keys in another order as the same event", () => {
     const e = add("e1", "2026-10-01T10:00:00Z", lot("lot-beans"));
     const { bought, due, id, place, price, product, units } = lot("lot-beans");
