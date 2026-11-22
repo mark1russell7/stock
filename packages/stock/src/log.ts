@@ -52,6 +52,12 @@ export function foldLog(events: Iterable<StockEvent>): StockState {
       else live.set(e.lot.id, e.lot);
       continue;
     }
+    if (e.kind === "correct") {
+      if (!live.has(e.lot.id)) problems.push(`the event ${e.id} corrects the lot ${e.lot.id}, which is not in the stock`);
+      else if (!(e.lot.units > 0)) problems.push(`the event ${e.id} corrects the lot ${e.lot.id} to ${e.lot.units} units: use a remove event`);
+      else live.set(e.lot.id, e.lot);
+      continue;
+    }
     const lot = live.get(e.lot);
     if (!lot) {
       problems.push(`the event ${e.id} names the lot ${e.lot}, which is not in the stock`);

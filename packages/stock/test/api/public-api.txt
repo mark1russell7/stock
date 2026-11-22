@@ -234,6 +234,11 @@ type StockEvent = {
   readonly units: number;
 } | {
   readonly id: string;
+  readonly kind: "correct";
+  readonly at: string;
+  readonly lot: Lot;
+} | {
+  readonly id: string;
   readonly kind: "remove";
   readonly at: string;
   readonly lot: string;

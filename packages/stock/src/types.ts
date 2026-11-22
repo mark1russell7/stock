@@ -51,6 +51,8 @@ export type RemoveReason = "due" | "lost" | "moved";
 export type StockEvent =
   | { readonly id: string; readonly kind: "add"; readonly at: string; readonly lot: Lot }
   | { readonly id: string; readonly kind: "use"; readonly at: string; readonly lot: string; readonly units: number }
+  /** A correction after a count or a read of the label: the lot with the same `id` gets these fields. */
+  | { readonly id: string; readonly kind: "correct"; readonly at: string; readonly lot: Lot }
   | { readonly id: string; readonly kind: "remove"; readonly at: string; readonly lot: string; readonly why: RemoveReason };
 
 /** A task of the schedule. */
