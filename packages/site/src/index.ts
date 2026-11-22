@@ -111,7 +111,7 @@ function drawChart(at: string): void {
     if (i > 0) path += `H${x(i)}V${y(p.foodDays)}`;
   });
   const ticks = [0, max / 2, max].map((d) => `<line x1="${padL}" x2="${w - 8}" y1="${y(d)}" y2="${y(d)}" class="grid"/><text x="${padL - 6}" y="${y(d) + 4}" text-anchor="end">${num(d)}</text>`).join("");
-  const years = [0, 1, 2, 3].map((k) => `<text x="${x(k * 52)}" y="${h - 6}" text-anchor="middle">${k === 0 ? "today" : `+${k} y`}</text>`).join("");
+  const years = [0, 1, 2, 3].map((k) => `<text x="${x(k * 52)}" y="${h - 6}" text-anchor="${k === 3 ? "end" : "middle"}">${k === 0 ? "today" : `+${k} y`}</text>`).join("");
   const cur = x(Math.min(steps, offset / 7));
   byId("chart").innerHTML = `<title id="chart-label">Days of food over time</title>${ticks}${years}<path d="${path}" class="line"/><line x1="${cur}" x2="${cur}" y1="${padT}" y2="${h - padB}" class="cursor"/><text x="${Math.min(cur + 4, w - 70)}" y="${padT + 12}" class="cursor-text">${esc(at)}</text>`;
 }
