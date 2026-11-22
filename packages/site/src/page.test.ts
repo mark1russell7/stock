@@ -9,6 +9,10 @@ describe("the home page", () => {
     expect(page).toContain("pnpm add @mark1russell7/stock");
   });
 
+  it("has the demo: the date, the tiles, the chart, the tasks, the lots, the form and the log", () => {
+    for (const id of ["day", "tiles", "chart", "tasks", "lots", "add", "log", "reset"]) expect(page).toContain(`id="${id}"`);
+  });
+
   it("has an icon link, so the browser does not ask for /favicon.ico", () => {
     expect(page).toMatch(/<link rel="icon" href="[^"]+">/);
   });
