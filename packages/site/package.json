@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@mark1russell7/algebra": "^0.9.10",
-    "@mark1russell7/market": "^0.2.1",
+    "@mark1russell7/market": "0.3.0",
     "@mark1russell7/stock": "workspace:*"
   },
   "devDependencies": {
