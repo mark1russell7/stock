@@ -1,6 +1,7 @@
 // The rotation tasks of the schedule. A lot needs a rotation when the household does not use it before its due date.
 
 import { dayOf, isoOf } from "./dates.ts";
+import { sortTasks } from "./routines.ts";
 import { byDue } from "./stock.ts";
 import type { IsoDate, Lot, Task } from "./types.ts";
 
@@ -45,7 +46,7 @@ export function rotationTasks(at: IsoDate, lots: readonly Lot[], useRates: Reado
       : `Replace the lot ${lot.id} of ${lot.product}: its due date is ${lot.due}`;
     tasks.push({ id: `rotate:${lot.id}`, kind: "rotate", due: when, ref: lot.id, title });
   }
-  return tasks.sort((a, b) => dayOf(a.due) - dayOf(b.due) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+  return sortTasks(tasks);
 }
 
 /** This function gives the tasks with a due date from `at` to `at + days`, both included. A task before `at` is in the list. */
