@@ -24,6 +24,24 @@ amounts(lots, yields, "2026-12-01"); // Map { "food.ready" => 4800 }
 tasksWithin(rotationTasks("2026-12-01", lots, { can: 0 }, 7), "2026-12-01", 30); // []
 ```
 
+## The FoodKeeper defaults
+
+The entry `@mark1russell7/stock/foodkeeper` is an add-on dataset. It gives the pantry time of 290 foods from the FoodKeeper data of USDA FSIS, version 128. The license of the data is CC0 1.0. The root entry names no food.
+
+- `findFoodKeeper(query)` gives the products that have each word of the query.
+- `foodKeeperRule(product, end)` gives a due rule of the kind `days` that cites the product. The default end is `min`, the low end of the range.
+- A month is 30 days and a year is 365 days. Thus a rule is not longer than the time of the source.
+- The times are for quality, not for safety.
+
+```ts
+import { findFoodKeeper, foodKeeperRule } from "@mark1russell7/stock/foodkeeper";
+
+const [rice] = findFoodKeeper("rice white");
+foodKeeperRule(rice); // { kind: "days", days: 730, source: "usda-fsis-foodkeeper#338" }
+```
+
+The command `node scripts/foodkeeper-import.ts <file>` of the repository makes `src/foodkeeper-data.ts` from `foodkeeper.json`. The data file records the SHA-256 of its source.
+
 ## Planned
 
-The roadmap of the repository (`docs/ROADMAP.md`) has the next items. The first item is the tasks of checks and drills, on the recurrence rule of `@mark1russell7/algebra/clock`. Then come the FoodKeeper defaults as an add-on dataset, and the inventory records on the log.
+The roadmap of the repository (`docs/ROADMAP.md`) has the next items. The first item is the tasks of checks and drills, on the recurrence rule of `@mark1russell7/algebra/clock`. Then come the inventory records on the log.

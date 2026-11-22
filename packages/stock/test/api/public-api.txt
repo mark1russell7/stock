@@ -9,19 +9,19 @@
 type AppendResult: build/index.d.ts#AppendResult
 type Draw: build/index.d.ts#Draw
 type DrawPlan: build/index.d.ts#DrawPlan
-type DueRule: build/index.d.ts#DueRule
-type IsoDate: build/index.d.ts#IsoDate
+type DueRule: build/types.chunk.d.ts#DueRule
+type IsoDate: build/types.chunk.d.ts#IsoDate
 type LogStorage: build/index.d.ts#LogStorage
-type Lot: build/index.d.ts#Lot
-type PlaceId: build/index.d.ts#PlaceId
-type ProductYield: build/index.d.ts#ProductYield
-type RemoveReason: build/index.d.ts#RemoveReason
+type Lot: build/types.chunk.d.ts#Lot
+type PlaceId: build/types.chunk.d.ts#PlaceId
+type ProductYield: build/types.chunk.d.ts#ProductYield
+type RemoveReason: build/types.chunk.d.ts#RemoveReason
 type RemovedLot: build/index.d.ts#RemovedLot
-type SourceId: build/index.d.ts#SourceId
-type StockEvent: build/index.d.ts#StockEvent
+type SourceId: build/types.chunk.d.ts#SourceId
+type StockEvent: build/types.chunk.d.ts#StockEvent
 type StockLog: build/index.d.ts#StockLog
 type StockState: build/index.d.ts#StockState
-type Task: build/index.d.ts#Task
+type Task: build/types.chunk.d.ts#Task
 amounts: build/index.d.ts#amounts
 byDue: build/index.d.ts#byDue
 drawFirstExpiring: build/index.d.ts#drawFirstExpiring
@@ -33,7 +33,56 @@ rotationTasks: build/index.d.ts#rotationTasks
 stockLog: build/index.d.ts#stockLog
 tasksWithin: build/index.d.ts#tasksWithin
 
+## ./foodkeeper (build/foodkeeper.d.ts): names
+
+FOODKEEPER_PRODUCTS: build/foodkeeper.d.ts#FOODKEEPER_PRODUCTS
+FOODKEEPER_SOURCE: build/foodkeeper.d.ts#FOODKEEPER_SOURCE
+FoodKeeperProduct: build/foodkeeper.d.ts#FoodKeeperProduct
+FoodKeeperSource: build/foodkeeper.d.ts#FoodKeeperSource
+findFoodKeeper: build/foodkeeper.d.ts#findFoodKeeper
+foodKeeperRule: build/foodkeeper.d.ts#foodKeeperRule
+shelfLifeDays: build/foodkeeper.d.ts#shelfLifeDays
+
 ## Declarations
+
+### build/foodkeeper.d.ts#FOODKEEPER_PRODUCTS
+export declare const FOODKEEPER_PRODUCTS: readonly FoodKeeperProduct[];
+
+### build/foodkeeper.d.ts#FOODKEEPER_SOURCE
+export declare const FOODKEEPER_SOURCE: FoodKeeperSource;
+
+### build/foodkeeper.d.ts#FoodKeeperProduct
+export interface FoodKeeperProduct {
+  readonly id: number;
+  readonly name: string | null;
+  readonly subtitle: string | null;
+  readonly category: string | null;
+  readonly keywords: string | null;
+  readonly basis: "purchase" | "stored";
+  readonly min: number;
+  readonly max: number;
+  readonly unit: "day" | "week" | "month" | "year";
+}
+
+### build/foodkeeper.d.ts#FoodKeeperSource
+export interface FoodKeeperSource {
+  readonly id: string;
+  readonly title: string;
+  readonly url: string;
+  readonly license: string;
+  readonly licenseUrl: string;
+  readonly version: number;
+  readonly versionDate: string;
+}
+
+### build/foodkeeper.d.ts#findFoodKeeper
+export declare function findFoodKeeper(query: string): FoodKeeperProduct[];
+
+### build/foodkeeper.d.ts#foodKeeperRule
+export declare function foodKeeperRule(product: FoodKeeperProduct, end?: "min" | "max"): DueRule;
+
+### build/foodkeeper.d.ts#shelfLifeDays
+export declare function shelfLifeDays(product: FoodKeeperProduct, end?: "min" | "max"): number;
 
 ### build/index.d.ts#AppendResult
 type AppendResult = "added" | "present";
@@ -50,18 +99,6 @@ interface DrawPlan {
   readonly short: number;
 }
 
-### build/index.d.ts#DueRule
-type DueRule = {
-  readonly kind: "label";
-} | {
-  readonly kind: "days";
-  readonly days: number;
-  readonly source: SourceId;
-};
-
-### build/index.d.ts#IsoDate
-type IsoDate = string;
-
 ### build/index.d.ts#LogStorage
 interface LogStorage {
   get(id: string): Promise<StockEvent | undefined>;
@@ -69,60 +106,12 @@ interface LogStorage {
   set(id: string, value: StockEvent): Promise<void>;
 }
 
-### build/index.d.ts#Lot
-interface Lot {
-  readonly id: string;
-  readonly product: string;
-  readonly place: PlaceId;
-  readonly units: number;
-  readonly bought: IsoDate;
-  readonly due: IsoDate;
-  readonly price?: number;
-}
-
-### build/index.d.ts#PlaceId
-type PlaceId = string;
-
-### build/index.d.ts#ProductYield
-interface ProductYield {
-  readonly product: string;
-  readonly resource: string;
-  readonly perUnit: number;
-  readonly due: DueRule;
-}
-
-### build/index.d.ts#RemoveReason
-type RemoveReason = "due" | "lost" | "moved";
-
 ### build/index.d.ts#RemovedLot
 interface RemovedLot {
   readonly lot: Lot;
   readonly at: string;
   readonly why: RemoveReason;
 }
-
-### build/index.d.ts#SourceId
-type SourceId = string;
-
-### build/index.d.ts#StockEvent
-type StockEvent = {
-  readonly id: string;
-  readonly kind: "add";
-  readonly at: string;
-  readonly lot: Lot;
-} | {
-  readonly id: string;
-  readonly kind: "use";
-  readonly at: string;
-  readonly lot: string;
-  readonly units: number;
-} | {
-  readonly id: string;
-  readonly kind: "remove";
-  readonly at: string;
-  readonly lot: string;
-  readonly why: RemoveReason;
-};
 
 ### build/index.d.ts#StockLog
 interface StockLog {
@@ -136,15 +125,6 @@ interface StockState {
   readonly lots: readonly Lot[];
   readonly removed: readonly RemovedLot[];
   readonly problems: readonly string[];
-}
-
-### build/index.d.ts#Task
-interface Task {
-  readonly id: string;
-  readonly kind: "rotate" | "check" | "drill" | "review" | "buy";
-  readonly due: IsoDate;
-  readonly ref: string;
-  readonly title: string;
 }
 
 ### build/index.d.ts#amounts
@@ -176,3 +156,72 @@ export declare function stockLog(storage: LogStorage): StockLog;
 
 ### build/index.d.ts#tasksWithin
 export declare function tasksWithin(tasks: readonly Task[], at: IsoDate, days: number): Task[];
+
+### build/types.chunk.d.ts#DueRule
+type DueRule = {
+  readonly kind: "label";
+} | {
+  readonly kind: "days";
+  readonly days: number;
+  readonly source: SourceId;
+};
+
+### build/types.chunk.d.ts#IsoDate
+type IsoDate = string;
+
+### build/types.chunk.d.ts#Lot
+interface Lot {
+  readonly id: string;
+  readonly product: string;
+  readonly place: PlaceId;
+  readonly units: number;
+  readonly bought: IsoDate;
+  readonly due: IsoDate;
+  readonly price?: number;
+}
+
+### build/types.chunk.d.ts#PlaceId
+type PlaceId = string;
+
+### build/types.chunk.d.ts#ProductYield
+interface ProductYield {
+  readonly product: string;
+  readonly resource: string;
+  readonly perUnit: number;
+  readonly due: DueRule;
+}
+
+### build/types.chunk.d.ts#RemoveReason
+type RemoveReason = "due" | "lost" | "moved";
+
+### build/types.chunk.d.ts#SourceId
+type SourceId = string;
+
+### build/types.chunk.d.ts#StockEvent
+type StockEvent = {
+  readonly id: string;
+  readonly kind: "add";
+  readonly at: string;
+  readonly lot: Lot;
+} | {
+  readonly id: string;
+  readonly kind: "use";
+  readonly at: string;
+  readonly lot: string;
+  readonly units: number;
+} | {
+  readonly id: string;
+  readonly kind: "remove";
+  readonly at: string;
+  readonly lot: string;
+  readonly why: RemoveReason;
+};
+
+### build/types.chunk.d.ts#Task
+interface Task {
+  readonly id: string;
+  readonly kind: "rotate" | "check" | "drill" | "review" | "buy";
+  readonly due: IsoDate;
+  readonly ref: string;
+  readonly title: string;
+}
