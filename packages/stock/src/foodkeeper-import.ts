@@ -2,7 +2,7 @@
 // The module is pure: the command scripts/foodkeeper-import.ts of the repository reads the file and writes the output.
 // No entry of the package exports this module.
 
-import type { FoodKeeperProduct } from "./foodkeeper.ts";
+import type { FoodKeeperProduct, FoodKeeperTimed } from "./foodkeeper.ts";
 
 /** The result of an import: the version of the source, the kept products and the count of each skipped pantry time. */
 export interface FoodKeeperImport {
@@ -13,7 +13,7 @@ export interface FoodKeeperImport {
 
 type Row = Readonly<Record<string, unknown>>;
 
-const UNITS: Readonly<Record<string, FoodKeeperProduct["unit"]>> = { Days: "day", Weeks: "week", Months: "month", Years: "year", Year: "year" };
+const UNITS: Readonly<Record<string, FoodKeeperTimed["unit"]>> = { Days: "day", Weeks: "week", Months: "month", Years: "year", Year: "year" };
 
 function sheet(file: unknown, name: string): Row[] {
   const sheets = (file as { sheets?: unknown } | null)?.sheets;

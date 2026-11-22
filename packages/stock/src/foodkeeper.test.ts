@@ -10,12 +10,12 @@ const byId = (id: number) => {
 
 describe("the FoodKeeper dataset", () => {
   it("has a valid pantry time for each product, and one entry for each id", () => {
-    expect(FOODKEEPER_PRODUCTS.length).toBe(290);
+    expect(FOODKEEPER_PRODUCTS.length).toBe(298);
     const ids = FOODKEEPER_PRODUCTS.map((p) => p.id);
     expect(new Set(ids).size).toBe(ids.length);
     expect([...ids].sort((a, b) => a - b)).toEqual(ids);
     for (const p of FOODKEEPER_PRODUCTS) {
-      expect(Number.isInteger(p.min) && p.min > 0 && p.min <= p.max).toBe(true);
+      if (p.unit !== "indefinitely") expect(Number.isInteger(p.min) && p.min > 0 && p.min <= p.max).toBe(true);
       expect(p.name).not.toBeNull();
     }
   });

@@ -47,7 +47,7 @@ describe("the import of the FoodKeeper file", () => {
     const text = foodKeeperModule(foodKeeperImport(file), "ab".repeat(32));
     expect(text).toContain("version 9 of 2018-09-06, license CC0 1.0");
     expect(text).toContain(`The SHA-256 of the source file: ${"ab".repeat(32)}.`);
-    expect(text).toContain("The import keeps 3 products");
+    expect(text).toContain("The import keeps 4 products");
     expect(text).toContain('export const FOODKEEPER_VERSION = { number: 9, date: "2018-09-06" } as const;');
   });
 });
