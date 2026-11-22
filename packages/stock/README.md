@@ -29,10 +29,11 @@ tasksWithin(rotationTasks("2026-12-01", lots, { can: 0 }, 7), "2026-12-01", 30);
 
 ## The FoodKeeper defaults
 
-The entry `@mark1russell7/stock/foodkeeper` is an add-on dataset. It gives the pantry time of 290 foods from the FoodKeeper data of USDA FSIS, version 128. The license of the data is CC0 1.0. The root entry names no food.
+The entry `@mark1russell7/stock/foodkeeper` is an add-on dataset. It gives the pantry time of 298 foods from the FoodKeeper data of USDA FSIS, version 128. The license of the data is CC0 1.0. The root entry names no food.
 
 - `findFoodKeeper(query)` gives the products that have each word of the query.
 - `foodKeeperRule(product, end)` gives a due rule of the kind `days` that cites the product. The default end is `min`, the low end of the range.
+- 8 foods keep with no limit in the data (the pantry time `Indefinitely`), for example granulated sugar, salt and bottled water. Their `unit` is `indefinitely`. `foodKeeperRule` gives the rule `none` with the citation, and `shelfLifeDays` gives `undefined`.
 - A month is 30 days and a year is 365 days. Thus a rule is not longer than the time of the source.
 - The times are for quality, not for safety.
 
