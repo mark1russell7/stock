@@ -40,7 +40,7 @@ const [rice] = findFoodKeeper("rice white");
 foodKeeperRule(rice); // { kind: "days", days: 730, source: "usda-fsis-foodkeeper#338" }
 ```
 
-The script `scripts/foodkeeper-import.mjs` makes `src/foodkeeper-data.ts` from `foodkeeper.json`. The data file records the SHA-256 of its source.
+The command `node scripts/foodkeeper-import.ts <file>` of the repository makes `src/foodkeeper-data.ts` from `foodkeeper.json`. The data file records the SHA-256 of its source.
 
 ## Planned
 
