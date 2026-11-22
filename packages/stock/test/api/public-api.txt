@@ -151,7 +151,10 @@ export declare function byDue(lots: readonly Lot[]): Lot[];
 export declare function drawFirstExpiring(lots: readonly Lot[], product: string, units: number, at: IsoDate): DrawPlan;
 
 ### build/index.d.ts#dueDate
-export declare function dueDate(rule: DueRule, bought: IsoDate, label?: IsoDate): IsoDate;
+export declare function dueDate(rule: Exclude<DueRule, {
+  readonly kind: "none";
+}>, bought: IsoDate, label?: IsoDate): IsoDate;
+export declare function dueDate(rule: DueRule, bought: IsoDate, label?: IsoDate): IsoDate | undefined;
 
 ### build/index.d.ts#foldLog
 export declare function foldLog(events: Iterable<StockEvent>): StockState;
@@ -160,7 +163,7 @@ export declare function foldLog(events: Iterable<StockEvent>): StockState;
 export declare function isUsable(lot: Lot, at: IsoDate): boolean;
 
 ### build/index.d.ts#rotationDate
-export declare function rotationDate(lot: Lot, useRate: number, leadDays: number): IsoDate;
+export declare function rotationDate(lot: Lot, useRate: number, leadDays: number): IsoDate | undefined;
 
 ### build/index.d.ts#rotationTasks
 export declare function rotationTasks(at: IsoDate, lots: readonly Lot[], useRates: Readonly<Record<string, number>>, leadDays: number): Task[];
@@ -187,6 +190,8 @@ type DueRule = {
   readonly kind: "days";
   readonly days: number;
   readonly source: SourceId;
+} | {
+  readonly kind: "none";
 };
 
 ### build/types.chunk.d.ts#IsoDate
@@ -199,7 +204,7 @@ interface Lot {
   readonly place: PlaceId;
   readonly units: number;
   readonly bought: IsoDate;
-  readonly due: IsoDate;
+  readonly due?: IsoDate;
   readonly price?: number;
 }
 
