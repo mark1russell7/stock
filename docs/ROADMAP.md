@@ -12,4 +12,5 @@ This file is the plan of stock. The Status page of the site reads it, and the tr
 | S6 | The FoodKeeper defaults | done | The entry `@mark1russell7/stock/foodkeeper` gives the pantry time of 290 foods from the USDA FoodKeeper data (CC0), version 128. Each due rule cites its product. |
 | S7 | The log on the sync engine | done | `stockLog(storage)` keeps the log on a collection storage of `client-store`, one item for each event, with no second store. A `correct` event (0.2.0) gives new fields to a lot after a count. A home inventory keeps its lots on this log: a job adds an event for each change. |
 | S8 | The demo site | done | The home page folds a sample log at a date that you select. It shows the days of food and water, the next 30 days and each lot. |
-| S9 | A lot with no due date | open | Tools, gear and some foods have no due date. Today a `Lot` must have a due date, so these lots stay off the log. |
+| S9 | A lot with no due date | done | The field `due` of a `Lot` is optional (0.3.0). The due rule `none` gives no due date. A lot with no due date is usable at each date, the first expiring draw takes it last, and it gets no rotation task. |
+| S14 | FoodKeeper foods that keep with no limit | later | The FoodKeeper import skips 8 foods with the pantry time Indefinitely. With the due rule `none` (S9), the import keeps them, and each cites its product. |

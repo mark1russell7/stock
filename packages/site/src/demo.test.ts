@@ -12,7 +12,7 @@ describe("the demo model", () => {
 
   it("uses the label date when there is one, else the FoodKeeper default", () => {
     expect(dueOf("rice", TODAY, "2027-01-01")).toBe("2027-01-01");
-    expect(dueOf("rice", TODAY) > "2027-11-22").toBe(true);
+    expect((dueOf("rice", TODAY) ?? "") > "2027-11-22").toBe(true);
     expect(() => dueOf("water", TODAY)).toThrow(RangeError);
   });
 

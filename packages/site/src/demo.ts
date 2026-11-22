@@ -4,6 +4,7 @@
 import { addDays as clockAddDays, dayNumber } from "@mark1russell7/algebra/clock";
 import {
   amounts,
+  byDue,
   dueDate,
   foldLog,
   isUsable,
@@ -100,7 +101,7 @@ export const YIELDS: readonly ProductYield[] = PRODUCTS.map((p) => {
 });
 
 /** This function gives the due date of a new lot: the label date when there is one, else the rule of the product. */
-export function dueOf(productId: string, bought: IsoDate, label?: IsoDate): IsoDate {
+export function dueOf(productId: string, bought: IsoDate, label?: IsoDate): IsoDate | undefined {
   if (label) return label;
   const rule = YIELDS.find((y) => y.product === productId)?.due ?? { kind: "label" as const };
   return dueDate(rule, bought, label);
@@ -108,6 +109,7 @@ export function dueOf(productId: string, bought: IsoDate, label?: IsoDate): IsoD
 
 /** This function gives the source of the due date of a lot, in words. */
 export function dueSource(lot: Lot): string {
+  if (lot.due === undefined) return "no due date";
   const p = byId.get(lot.product);
   const food = p?.foodkeeper === undefined ? undefined : FOODKEEPER_PRODUCTS.find((f) => f.id === p.foodkeeper);
   if (food && dueDate(foodKeeperRule(food), lot.bought) === lot.due) return `FoodKeeper #${food.id}: ${food.name}${food.subtitle ? `, ${food.subtitle}` : ""}`.replace(/ \(.*$/, "");
@@ -122,7 +124,8 @@ export const SOURCE = FOODKEEPER_SOURCE;
  * The time `at` is an ISO 8601 time, or a date: a date gets the time 12:00 UTC.
  */
 export function addEvent(n: number, at: string, productId: string, units: number, bought: IsoDate, label?: IsoDate): StockEvent {
-  const lot: Lot = { id: `lot-${n}`, product: productId, place: "pantry", units, bought, due: dueOf(productId, bought, label) };
+  const due = dueOf(productId, bought, label);
+  const lot: Lot = { id: `lot-${n}`, product: productId, place: "pantry", units, bought, ...(due === undefined ? {} : { due }) };
   return { id: `e${n}`, kind: "add", at: at.length === 10 ? `${at}T12:00:00Z` : at, lot };
 }
 
@@ -152,7 +155,8 @@ export interface LotView {
   readonly name: string;
   readonly unit: string;
   readonly usable: boolean;
-  readonly daysLeft: number;
+  /** The days to the due date. A lot with no due date has none. */
+  readonly daysLeft: number | undefined;
   readonly source: string;
 }
 
@@ -186,11 +190,10 @@ export function view(events: readonly StockEvent[], at: IsoDate, hh: Household =
   const totals = amounts(state.lots, YIELDS, at);
   const kcal = totals.get("food.kcal") ?? 0;
   const gallons = totals.get("water.gal") ?? 0;
-  const lots = [...state.lots]
-    .sort((a, b) => (a.due < b.due ? -1 : a.due > b.due ? 1 : a.id < b.id ? -1 : 1))
+  const lots = byDue(state.lots)
     .map((lot) => {
       const p = byId.get(lot.product);
-      return { lot, name: p?.name ?? lot.product, unit: p?.unit ?? "unit", usable: isUsable(lot, at), daysLeft: daysBetween(at, lot.due), source: dueSource(lot) };
+      return { lot, name: p?.name ?? lot.product, unit: p?.unit ?? "unit", usable: isUsable(lot, at), daysLeft: lot.due === undefined ? undefined : daysBetween(at, lot.due), source: dueSource(lot) };
     });
   return {
     at,

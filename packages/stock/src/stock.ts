@@ -7,8 +7,15 @@ import type { DueRule, IsoDate, Lot, ProductYield } from "./types.ts";
 /**
  * This function gives the due date of a lot from its rule.
  * The rule `label` needs the date of the label. The rule `days` adds its days to the date of purchase.
+ * The rule `none` gives no due date. The rules `days` and `none` do not use the date of the label.
  */
-export function dueDate(rule: DueRule, bought: IsoDate, label?: IsoDate): IsoDate {
+export function dueDate(rule: Exclude<DueRule, { readonly kind: "none" }>, bought: IsoDate, label?: IsoDate): IsoDate;
+export function dueDate(rule: DueRule, bought: IsoDate, label?: IsoDate): IsoDate | undefined;
+export function dueDate(rule: DueRule, bought: IsoDate, label?: IsoDate): IsoDate | undefined {
+  if (rule.kind === "none") {
+    dayOf(bought);
+    return undefined;
+  }
   if (rule.kind === "label") {
     if (label === undefined) throw new RangeError("the due rule `label` needs the date of the label");
     dayOf(label);
@@ -18,9 +25,13 @@ export function dueDate(rule: DueRule, bought: IsoDate, label?: IsoDate): IsoDat
   return addDays(bought, rule.days);
 }
 
-/** This function gives true when the lot gives to its resource at the date. Then the date is before the due date, and the lot has units. */
+/**
+ * This function gives true when the lot gives to its resource at the date. Then the lot has units, and the date is before
+ * the due date. A lot with no due date is usable at each date.
+ */
 export function isUsable(lot: Lot, at: IsoDate): boolean {
-  return lot.units > 0 && dayOf(at) < dayOf(lot.due);
+  const today = dayOf(at);
+  return lot.units > 0 && (lot.due === undefined || today < dayOf(lot.due));
 }
 
 /**
@@ -39,9 +50,18 @@ export function amounts(lots: readonly Lot[], yields: readonly ProductYield[], a
   return out;
 }
 
-/** This function sorts lots by their due date, the first due first. Lots with the same due date sort by `id`. */
+/**
+ * This function sorts lots by their due date, the first due first. The lots with no due date come last.
+ * Lots with the same due date, or with no due date, sort by `id`.
+ */
 export function byDue(lots: readonly Lot[]): Lot[] {
-  return [...lots].sort((a, b) => dayOf(a.due) - dayOf(b.due) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+  const day = (lot: Lot): number => (lot.due === undefined ? Number.POSITIVE_INFINITY : dayOf(lot.due));
+  return [...lots].sort((a, b) => {
+    const da = day(a);
+    const db = day(b);
+    if (da !== db) return da < db ? -1 : 1;
+    return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+  });
 }
 
 /** One draw from one lot. */
