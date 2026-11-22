@@ -224,7 +224,7 @@ importers:
         specifier: ^0.9.10
         version: 0.9.10(zod@4.6.7)
       '@mark1russell7/market':
-        specifier: 0.3.0
+        specifier: ^0.3.0
         version: 0.3.0
       '@mark1russell7/stock':
         specifier: workspace:*
