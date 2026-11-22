@@ -4,8 +4,8 @@ Stock with due dates. A lot is an amount of one product at one place, with its d
 
 ## What the package gives
 
-- `dueDate(rule, bought, label)` gives the due date of a lot from its rule. The rule `label` uses the date on the label. The rule `days` adds a count of days to the date of purchase, and cites its source.
-- `isUsable(lot, at)` and `amounts(lots, yields, at)` give the usable lots and the amount of each resource at a date. A lot gives nothing on its due date and after it.
+- `dueDate(rule, bought, label)` gives the due date of a lot from its rule. The rule `label` uses the date on the label. The rule `days` adds a count of days to the date of purchase, and cites its source. The rule `none` gives no due date, for a product that does not spoil.
+- `isUsable(lot, at)` and `amounts(lots, yields, at)` give the usable lots and the amount of each resource at a date. A lot gives nothing on its due date and after it. A lot with no due date gives at each date, and the first expiring draw takes it last.
 - `drawFirstExpiring(lots, product, units, at)` gives the draws of first expiring, first out for one use.
 - `foldLog(events)` gives the current stock from an append-only log. The fold removes copies of an event by `id`, so each order of arrival gives the same stock. The order of the keys of an event has no effect.
 - A `correct` event gives new fields to a lot after a count or a read of its label. The lot keeps its `id` and its place in the list.
@@ -13,7 +13,7 @@ Stock with due dates. A lot is an amount of one product at one place, with its d
 - `rotationDate(lot, useRate, leadDays)` gives the date to start to use a lot: `due - units / useRate - leadDays`.
 - `routineTasks(at, routines, lastDone)` gives the next task of each routine: a check, a drill, a review or a purchase on a recurrence rule of `@mark1russell7/algebra/clock`. A record in `lastDone` makes a past date a late task.
 - `sortTasks(tasks)` merges the rotation tasks and the routine tasks by due date.
-- `rotationTasks(at, lots, useRates, leadDays)` gives a task for each lot that the use does not finish before its due date, and for each lot past its due date.
+- `rotationTasks(at, lots, useRates, leadDays)` gives a task for each lot that the use does not finish before its due date, and for each lot past its due date. A lot with no due date gets no task.
 
 ## Example
 

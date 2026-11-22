@@ -82,8 +82,8 @@ function render(): void {
 
   byId("lots").innerHTML = v.lots
     .map((l) => {
-      const badge = !l.usable ? `<span class="badge past">past due</span>` : l.daysLeft <= 90 ? `<span class="badge soon">${l.daysLeft} days left</span>` : `<span class="badge ok">${num(l.daysLeft)} days left</span>`;
-      return `<div class="row lot"><div><strong>${esc(l.name)}</strong> ${badge}<div class="note">${num(l.lot.units)} ${esc(l.unit)} · bought ${esc(l.lot.bought)} · due ${esc(l.lot.due)} from ${esc(l.source)}</div></div>
+      const badge = !l.usable ? `<span class="badge past">past due</span>` : l.daysLeft === undefined ? `<span class="badge ok">no due date</span>` : l.daysLeft <= 90 ? `<span class="badge soon">${l.daysLeft} days left</span>` : `<span class="badge ok">${num(l.daysLeft)} days left</span>`;
+      return `<div class="row lot"><div><strong>${esc(l.name)}</strong> ${badge}<div class="note">${num(l.lot.units)} ${esc(l.unit)} · bought ${esc(l.lot.bought)} · ${l.lot.due === undefined ? "no due date" : `due ${esc(l.lot.due)} from ${esc(l.source)}`}</div></div>
         <div class="ops"><button type="button" data-use="${l.lot.id}" aria-label="Use 1 ${esc(l.unit)} of ${esc(l.name)}">Use 1</button><button type="button" data-remove="${l.lot.id}" aria-label="Remove ${esc(l.name)}">Remove</button></div></div>`;
     })
     .join("");
@@ -92,7 +92,7 @@ function render(): void {
   byId("log").innerHTML = [...log]
     .reverse()
     .map((e) => {
-      const what = e.kind === "add" || e.kind === "correct" ? `${e.kind} ${e.lot.id}: ${e.lot.units} of ${e.lot.product}, due ${e.lot.due}` : e.kind === "use" ? `use ${e.units} of ${e.lot}` : `remove ${e.lot} (${e.why})`;
+      const what = e.kind === "add" || e.kind === "correct" ? `${e.kind} ${e.lot.id}: ${e.lot.units} of ${e.lot.product}, ${e.lot.due === undefined ? "no due date" : `due ${e.lot.due}`}` : e.kind === "use" ? `use ${e.units} of ${e.lot}` : `remove ${e.lot} (${e.why})`;
       return `<li><code>${esc(e.at.slice(0, 10))}</code> ${esc(what)}</li>`;
     })
     .join("");

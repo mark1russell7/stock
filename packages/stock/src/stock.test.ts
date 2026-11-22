@@ -242,3 +242,47 @@ describe("the rotation", () => {
     expect(tasksWithin(tasks, AT, 30).map((t) => t.ref)).toEqual(["lot-filled"]);
   });
 });
+
+describe("a lot with no due date (S9)", () => {
+  const tool: Lot = { id: "lot-tool", product: "rice-dry-1kg", place: "home", units: 4, bought: "2026-10-01" };
+
+  it("gets no due date from the rule none, and the rule still checks the purchase date", () => {
+    expect(dueDate({ kind: "none" }, "2026-10-01")).toBeUndefined();
+    expect(dueDate({ kind: "none" }, "2026-10-01", "2027-01-01")).toBeUndefined();
+    expect(() => dueDate({ kind: "none" }, "2026-13-01")).toThrow(RangeError);
+  });
+
+  it("is usable at each date while it has units, and gives to its resource", () => {
+    expect(isUsable(tool, AT)).toBe(true);
+    expect(isUsable(tool, "2126-01-01")).toBe(true);
+    expect(isUsable({ ...tool, units: 0 }, AT)).toBe(false);
+    expect(amounts([tool], YIELDS, "2126-01-01").get("food.grain-dry")).toBe(4);
+  });
+
+  it("sorts after each lot with a due date, by id, and the first expiring draw takes it last", () => {
+    const other: Lot = { ...tool, id: "lot-a-tool" };
+    expect(byDue([tool, lot("lot-rice"), other]).map((l) => l.id)).toEqual(["lot-rice", "lot-a-tool", "lot-tool"]);
+    expect(drawFirstExpiring([tool, lot("lot-rice")], "rice-dry-1kg", 11, AT).draws).toEqual([
+      { lot: "lot-rice", units: 9 },
+      { lot: "lot-tool", units: 2 },
+    ]);
+  });
+
+  it("has no rotation date and gets no rotation task", () => {
+    expect(rotationDate(tool, 1, 7)).toBeUndefined();
+    expect(rotationTasks(AT, [tool], {}, 7)).toEqual([]);
+    expect(rotationTasks(AT, [tool, lot("lot-filled")], {}, 7).map((t) => t.ref)).toEqual(["lot-filled"]);
+  });
+
+  it("goes through the log as an add and a correct, and a correct can remove the due date", () => {
+    const { due: _due, ...undatedRice } = lot("lot-rice");
+    const events: StockEvent[] = [
+      { id: "e1", kind: "add", at: "2026-10-01T12:00:00Z", lot: tool },
+      { id: "e2", kind: "add", at: "2026-10-01T12:00:00Z", lot: lot("lot-rice") },
+      { id: "e3", kind: "correct", at: "2026-10-02T12:00:00Z", lot: undatedRice },
+    ];
+    const folded = foldLog(events);
+    expect(folded.problems).toEqual([]);
+    expect(folded.lots.every((l) => l.due === undefined)).toBe(true);
+  });
+});
