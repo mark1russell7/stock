@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addEvent, curve, dueOf, PRODUCTS, sampleLog, view, YIELDS } from "./demo.ts";
+import { addEvent, curve, dueOf, dueSource, PRODUCTS, sampleLog, view, YIELDS } from "./demo.ts";
 
 const TODAY = "2026-11-22";
 
@@ -13,6 +13,15 @@ describe("the demo model", () => {
     expect(dueOf("rice", TODAY, "2027-01-01")).toBe("2027-01-01");
     expect(dueOf("rice", TODAY) > "2027-11-22").toBe(true);
     expect(() => dueOf("water", TODAY)).toThrow(RangeError);
+  });
+
+  it("names the source of a due date in a short text: the FoodKeeper product, or the label", () => {
+    const canned = addEvent(1, TODAY, "canned", 1, TODAY);
+    const water = addEvent(2, TODAY, "water", 1, TODAY, "2027-01-01");
+    if (canned.kind !== "add" || water.kind !== "add") throw new Error("not an add event");
+    expect(dueSource(canned.lot)).toMatch(/^FoodKeeper #372: Canned goods, low acid/);
+    expect(dueSource(canned.lot)).not.toContain("(");
+    expect(dueSource(water.lot)).toBe("the label");
   });
 
   it("folds the sample log with no problem, and the use event takes 10 lb of the first rice lot", () => {

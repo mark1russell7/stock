@@ -73,7 +73,7 @@ export function dueOf(productId: string, bought: IsoDate, label?: IsoDate): IsoD
 export function dueSource(lot: Lot): string {
   const p = byId.get(lot.product);
   const food = p?.foodkeeper === undefined ? undefined : FOODKEEPER_PRODUCTS.find((f) => f.id === p.foodkeeper);
-  if (food && dueDate(foodKeeperRule(food), lot.bought) === lot.due) return `FoodKeeper #${food.id}: ${food.name.replace(/ (.*$/, "")}${food.subtitle ? `, ${food.subtitle}` : ""}`;
+  if (food && dueDate(foodKeeperRule(food), lot.bought) === lot.due) return `FoodKeeper #${food.id}: ${food.name}${food.subtitle ? `, ${food.subtitle}` : ""}`.replace(/ \(.*$/, "");
   return "the label";
 }
 
