@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/package",
   "name": "@mark1russell7/stock",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Stock with due dates: lots, due rules as data, first expiring first out, rotation dates and the fold of an append-only log. The core names no kind of item.",
   "keywords": [
     "stock",
@@ -29,6 +29,7 @@
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
+    "./foodkeeper": "./src/foodkeeper.ts",
     "./package.json": "./package.json"
   },
   "files": [
@@ -47,6 +48,10 @@
       ".": {
         "types": "./build/index.d.ts",
         "default": "./build/index.js"
+      },
+      "./foodkeeper": {
+        "types": "./build/foodkeeper.d.ts",
+        "default": "./build/foodkeeper.js"
       },
       "./package.json": "./package.json"
     }
