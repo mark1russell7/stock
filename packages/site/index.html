@@ -29,12 +29,53 @@
   <h1>stock</h1>
   <p class="lead">Stock with due dates: lots of items, due rules as data, first expiring first out, rotation dates and an append-only log.</p>
 
+  <section class="demo" aria-labelledby="demo-title">
+    <h2 id="demo-title">Try it: a sample pantry</h2>
+    <p class="note">This demo keeps a sample pantry as an append-only log in your browser. Each view below is a fold of the log at the date that you select. The sample is for 2 people at 2,000 calories and 1 gallon of water each day.</p>
+
+    <div class="when">
+      <label for="day">The date <output id="day-text" for="day"></output></label>
+      <input id="day" type="range" min="0" max="1095" step="1" value="0">
+      <div class="when-ops"><button id="today" type="button">Today</button><span id="day-note" class="note"></span></div>
+    </div>
+
+    <div class="tiles" id="tiles" aria-live="polite"></div>
+
+    <figure class="chart">
+      <figcaption>Days of food over the next 3 years from the date, if the household uses nothing. Each drop is a lot at its due date.</figcaption>
+      <svg id="chart" viewBox="0 0 640 200" role="img" aria-labelledby="chart-label"><title id="chart-label">Days of food over time</title></svg>
+    </figure>
+
+    <h3>The tasks of the next 30 days</h3>
+    <div id="tasks" class="rows"></div>
+
+    <h3>The lots, the first due first</h3>
+    <div id="lots" class="rows"></div>
+
+    <h3>Add a lot</h3>
+    <form id="add" class="add" autocomplete="off">
+      <label>Product <select id="a-product"></select></label>
+      <label>Units <input id="a-units" type="number" min="1" step="1" value="10" required></label>
+      <label>Bought <input id="a-bought" type="date" required></label>
+      <label>Label date <input id="a-label" type="date"></label>
+      <button type="submit">Add the lot</button>
+      <p class="note" id="a-due"></p>
+    </form>
+
+    <details class="log">
+      <summary>The log: <span id="log-count"></span></summary>
+      <ol id="log" reversed></ol>
+      <button id="reset" type="button">Start again with the sample</button>
+    </details>
+    <p class="note" id="source"></p>
+  </section>
+
   <h2>Install</h2>
   <div class="command">
     <code id="install">pnpm add @mark1russell7/stock</code>
     <button id="copy" type="button">Copy</button>
   </div>
-  <p class="note">This package has no release on npm yet. <a href="./releases/">Releases</a> shows each version, and <a href="./status/">Status</a> shows the open work.</p>
+  <p class="note"><a href="./releases/">Releases</a> shows each version, and <a href="./status/">Status</a> shows the open work.</p>
 </main>
 
 <script type="module" src="./src/index.ts"></script>
