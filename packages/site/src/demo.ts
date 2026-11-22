@@ -16,29 +16,66 @@ import {
   type Task,
 } from "@mark1russell7/stock";
 import { FOODKEEPER_PRODUCTS, FOODKEEPER_SOURCE, foodKeeperRule } from "@mark1russell7/stock/foodkeeper";
+import { SUPPLY_CATALOG, type CitedAmount } from "@mark1russell7/market/supplies";
 
-/** A product of the demo: its unit, what one unit gives, and the FoodKeeper product of its default due date. */
+/** A product of the demo: one product of the market supply catalog, and what one unit of it gives. */
 export interface DemoProduct {
   readonly id: string;
   readonly name: string;
+  /** The unit of one product of the catalog: a bag of 1 kg, a can or a jug of 1 gal. */
   readonly unit: string;
+  /** The id of the product in `SUPPLY_CATALOG`. */
+  readonly supply: string;
   /** The resource that the product fills: calories of food or gallons of water. */
   readonly resource: "food.kcal" | "water.gal";
+  /** The kcal or the gallons of one unit, from the catalog. */
   readonly perUnit: number;
-  /** The FoodKeeper product id. A product with none uses the date on the label. */
+  /** The source of `perUnit` in words, from the cited fact of the catalog. */
+  readonly perUnitSource: string;
+  /** The FoodKeeper product id, from the catalog. A product with none uses the date on the label. */
   readonly foodkeeper?: number;
 }
 
-/** The sample products. The calories of one unit are approximate values of USDA FoodData Central. */
-export const PRODUCTS: readonly DemoProduct[] = [
-  { id: "rice", name: "White rice", unit: "lb", resource: "food.kcal", perUnit: 1656, foodkeeper: 338 },
-  { id: "beans", name: "Dried beans", unit: "lb", resource: "food.kcal", perUnit: 1574, foodkeeper: 333 },
-  { id: "pasta", name: "Dry pasta", unit: "lb", resource: "food.kcal", perUnit: 1683, foodkeeper: 335 },
-  { id: "canned", name: "Canned soup", unit: "can", resource: "food.kcal", perUnit: 400, foodkeeper: 372 },
-  { id: "pb", name: "Peanut butter", unit: "lb", resource: "food.kcal", perUnit: 2667, foodkeeper: 387 },
-  { id: "flour", name: "White flour", unit: "lb", resource: "food.kcal", perUnit: 1651, foodkeeper: 222 },
-  { id: "water", name: "Bottled water", unit: "gal", resource: "water.gal", perUnit: 1 },
+/** The sample products: a name, a unit and the id of a product of the market supply catalog. The catalog gives all the values. */
+const SAMPLE: readonly { readonly id: string; readonly name: string; readonly unit: string; readonly supply: string }[] = [
+  { id: "rice", name: "White rice", unit: "kg", supply: "food.rice-white-1kg" },
+  { id: "beans", name: "Dried beans", unit: "kg", supply: "food.beans-dry-1kg" },
+  { id: "pasta", name: "Dry pasta", unit: "kg", supply: "food.pasta-dry-1kg" },
+  { id: "canned", name: "Canned soup", unit: "can", supply: "food.soup-can" },
+  { id: "pb", name: "Peanut butter", unit: "kg", supply: "food.peanut-butter-1kg" },
+  { id: "flour", name: "White flour", unit: "kg", supply: "food.flour-white-1kg" },
+  { id: "water", name: "Bottled water", unit: "gal", supply: "water.jug-1gal" },
 ];
+
+/** This function gives the words of the source of a cited amount: the locator of its fact, or the definition of the product. */
+function citation(amount: CitedAmount): string {
+  if (amount.fact === undefined) return "the size of the product";
+  const fact = SUPPLY_CATALOG.facts.find((f) => f.id === amount.fact);
+  if (fact === undefined) throw new RangeError(`the supply catalog has no fact ${amount.fact}`);
+  const source = SUPPLY_CATALOG.sources.find((s) => s.id === fact.source)?.title ?? fact.source;
+  return fact.locator ? `${source}, ${fact.locator}` : source;
+}
+
+/** This function makes a demo product from its catalog product. It throws a `RangeError` when the catalog has no read of a value. */
+function fromCatalog(s: (typeof SAMPLE)[number]): DemoProduct {
+  const supply = SUPPLY_CATALOG.products.find((p) => p.id === s.supply);
+  if (supply === undefined) throw new RangeError(`the supply catalog has no product ${s.supply}`);
+  const water = supply.kind === "water";
+  const amount = water ? supply.gives.find((g) => g.resource === "water.stored")?.amount : supply.energy;
+  const unit = water ? "gal" : "kcal";
+  if (amount === undefined || !amount.read || amount.unit !== unit) throw new RangeError(`the supply catalog gives no ${unit} for ${s.supply}`);
+  const foodkeeper = "foodKeeper" in supply.shelf ? supply.shelf.foodKeeper : undefined;
+  return {
+    ...s,
+    resource: water ? "water.gal" : "food.kcal",
+    perUnit: amount.amount,
+    perUnitSource: citation(amount),
+    ...(foodkeeper === undefined ? {} : { foodkeeper }),
+  };
+}
+
+/** The sample products, with their values from the market supply catalog. */
+export const PRODUCTS: readonly DemoProduct[] = SAMPLE.map(fromCatalog);
 
 /** This function adds days to a calendar date. The demo makes only real dates, so a bad date is a bug. */
 function addDays(date: IsoDate, days: number): IsoDate {
@@ -93,19 +130,19 @@ export function addEvent(n: number, at: string, productId: string, units: number
 export function sampleLog(today: IsoDate): StockEvent[] {
   const ago = (days: number): IsoDate => addDays(today, -days);
   const rows: readonly [string, number, number, IsoDate?][] = [
-    ["rice", 50, 400],
-    ["rice", 25, 40],
-    ["beans", 20, 600],
-    ["beans", 10, 90],
-    ["pasta", 10, 200],
+    ["rice", 25, 400],
+    ["rice", 10, 40],
+    ["beans", 10, 600],
+    ["beans", 5, 90],
+    ["pasta", 5, 200],
     ["canned", 24, 300],
     ["canned", 12, 30],
-    ["pb", 6, 150],
-    ["flour", 10, 170],
+    ["pb", 3, 150],
+    ["flour", 5, 170],
     ["water", 14, 60, addDays(today, 300)],
   ];
   const events = rows.map(([p, units, days, label], i) => addEvent(i + 1, ago(days), p, units, ago(days), label));
-  events.push({ id: "e11", kind: "use", at: `${ago(20)}T18:00:00Z`, lot: "lot-1", units: 10 });
+  events.push({ id: "e11", kind: "use", at: `${ago(20)}T18:00:00Z`, lot: "lot-1", units: 5 });
   return events;
 }
 

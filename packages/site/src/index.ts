@@ -171,6 +171,8 @@ byId("reset").addEventListener("click", () => {
   save();
   render();
 });
-byId("source").innerHTML = `The default due dates come from <a href="${SOURCE.url}">${esc(SOURCE.title)}</a>, version ${SOURCE.version} (${SOURCE.versionDate}), <a href="${SOURCE.licenseUrl}">${esc(SOURCE.license)}</a>. The demo uses the short end of each range.`;
+byId("source").innerHTML = `The default due dates come from <a href="${SOURCE.url}">${esc(SOURCE.title)}</a>, version ${SOURCE.version} (${SOURCE.versionDate}), <a href="${SOURCE.licenseUrl}">${esc(SOURCE.license)}</a>. The demo uses the short end of each range. The calories of each product come from the supply catalog of <code>@mark1russell7/market</code>. ${PRODUCTS.filter((p) => p.resource === "food.kcal")
+  .map((p) => `${esc(p.name)}: ${num(p.perUnit)} kcal in 1 ${esc(p.unit)}, from ${esc(p.perUnitSource)}.`)
+  .join(" ")}`;
 
 render();

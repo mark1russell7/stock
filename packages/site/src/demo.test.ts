@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { addEvent, curve, dueOf, dueSource, PRODUCTS, sampleLog, view, YIELDS } from "./demo.ts";
+import { SUPPLY_CATALOG } from "@mark1russell7/market/supplies";
+import { addEvent, curve, dueOf, dueSource, product, PRODUCTS, sampleLog, view, YIELDS } from "./demo.ts";
 
 const TODAY = "2026-11-22";
 
@@ -24,11 +25,23 @@ describe("the demo model", () => {
     expect(dueSource(water.lot)).toBe("the label");
   });
 
-  it("folds the sample log with no problem, and the use event takes 10 lb of the first rice lot", () => {
+  it("takes each value of a product from the market supply catalog, with its citation", () => {
+    for (const p of PRODUCTS) {
+      const supply = SUPPLY_CATALOG.products.find((s) => s.id === p.supply);
+      expect(supply, p.supply).toBeDefined();
+      if (p.resource === "food.kcal") expect(supply?.energy).toMatchObject({ read: true, amount: p.perUnit, unit: "kcal" });
+      expect(p.foodkeeper).toBe(supply && "foodKeeper" in supply.shelf ? supply.shelf.foodKeeper : undefined);
+    }
+    expect(product("rice")).toMatchObject({ unit: "kg", perUnit: 3650, foodkeeper: 338 });
+    expect(product("rice").perUnitSource).toMatch(/FoodData Central.*FDC ID 168877/);
+    expect(product("water")).toMatchObject({ resource: "water.gal", perUnit: 1, perUnitSource: "the size of the product" });
+  });
+
+  it("folds the sample log with no problem, and the use event takes 5 kg of the first rice lot", () => {
     const v = view(sampleLog(TODAY), TODAY);
     expect(v.problems).toEqual([]);
     expect(v.lots).toHaveLength(10);
-    expect(v.lots.find((l) => l.lot.id === "lot-1")?.lot.units).toBe(40);
+    expect(v.lots.find((l) => l.lot.id === "lot-1")?.lot.units).toBe(20);
     expect(v.foodDays).toBeGreaterThan(30);
     expect(v.waterDays).toBe(7);
   });
