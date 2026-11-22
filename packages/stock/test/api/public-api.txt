@@ -15,8 +15,10 @@ type LogStorage: build/index.d.ts#LogStorage
 type Lot: build/types.chunk.d.ts#Lot
 type PlaceId: build/types.chunk.d.ts#PlaceId
 type ProductYield: build/types.chunk.d.ts#ProductYield
+type Recurrence: @mark1russell7/algebra/clock#Recurrence (external)
 type RemoveReason: build/types.chunk.d.ts#RemoveReason
 type RemovedLot: build/index.d.ts#RemovedLot
+type Routine: build/index.d.ts#Routine
 type SourceId: build/types.chunk.d.ts#SourceId
 type StockEvent: build/types.chunk.d.ts#StockEvent
 type StockLog: build/index.d.ts#StockLog
@@ -30,6 +32,9 @@ foldLog: build/index.d.ts#foldLog
 isUsable: build/index.d.ts#isUsable
 rotationDate: build/index.d.ts#rotationDate
 rotationTasks: build/index.d.ts#rotationTasks
+routineProblems: build/index.d.ts#routineProblems
+routineTasks: build/index.d.ts#routineTasks
+sortTasks: build/index.d.ts#sortTasks
 stockLog: build/index.d.ts#stockLog
 tasksWithin: build/index.d.ts#tasksWithin
 
@@ -113,6 +118,15 @@ interface RemovedLot {
   readonly why: RemoveReason;
 }
 
+### build/index.d.ts#Routine
+interface Routine {
+  readonly id: string;
+  readonly kind: "check" | "drill" | "review" | "buy";
+  readonly ref: string;
+  readonly title: string;
+  readonly rule: Recurrence;
+}
+
 ### build/index.d.ts#StockLog
 interface StockLog {
   append(event: StockEvent): Promise<AppendResult>;
@@ -150,6 +164,15 @@ export declare function rotationDate(lot: Lot, useRate: number, leadDays: number
 
 ### build/index.d.ts#rotationTasks
 export declare function rotationTasks(at: IsoDate, lots: readonly Lot[], useRates: Readonly<Record<string, number>>, leadDays: number): Task[];
+
+### build/index.d.ts#routineProblems
+export declare function routineProblems(routines: readonly Routine[]): string[];
+
+### build/index.d.ts#routineTasks
+export declare function routineTasks(at: IsoDate, routines: readonly Routine[], lastDone?: Readonly<Record<string, IsoDate>>): Task[];
+
+### build/index.d.ts#sortTasks
+export declare function sortTasks(tasks: readonly Task[]): Task[];
 
 ### build/index.d.ts#stockLog
 export declare function stockLog(storage: LogStorage): StockLog;

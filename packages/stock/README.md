@@ -10,6 +10,8 @@ Stock with due dates. A lot is an amount of one product at one place, with its d
 - `foldLog(events)` gives the current stock from an append-only log. The fold removes copies of an event by `id`, so each order of arrival gives the same stock. The order of the keys of an event has no effect.
 - `stockLog(storage)` keeps the log on a collection storage, one item for each event. Two copies of the log merge as a union, so a sync has no conflict.
 - `rotationDate(lot, useRate, leadDays)` gives the date to start to use a lot: `due - units / useRate - leadDays`.
+- `routineTasks(at, routines, lastDone)` gives the next task of each routine: a check, a drill, a review or a purchase on a recurrence rule of `@mark1russell7/algebra/clock`. A record in `lastDone` makes a past date a late task.
+- `sortTasks(tasks)` merges the rotation tasks and the routine tasks by due date.
 - `rotationTasks(at, lots, useRates, leadDays)` gives a task for each lot that the use does not finish before its due date, and for each lot past its due date.
 
 ## Example
@@ -44,4 +46,4 @@ The command `node scripts/foodkeeper-import.ts <file>` of the repository makes `
 
 ## Planned
 
-The roadmap of the repository (`docs/ROADMAP.md`) has the next items. The first item is the tasks of checks and drills, on the recurrence rule of `@mark1russell7/algebra/clock`. Then come the inventory records on the log.
+The roadmap of the repository (`docs/ROADMAP.md`) has the next items: the inventory records on the log and the demo site.
