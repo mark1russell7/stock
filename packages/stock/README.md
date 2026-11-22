@@ -7,7 +7,8 @@ Stock with due dates. A lot is an amount of one product at one place, with its d
 - `dueDate(rule, bought, label)` gives the due date of a lot from its rule. The rule `label` uses the date on the label. The rule `days` adds a count of days to the date of purchase, and cites its source.
 - `isUsable(lot, at)` and `amounts(lots, yields, at)` give the usable lots and the amount of each resource at a date. A lot gives nothing on its due date and after it.
 - `drawFirstExpiring(lots, product, units, at)` gives the draws of first expiring, first out for one use.
-- `foldLog(events)` gives the current stock from an append-only log. The fold removes copies of an event by `id`, so each order of arrival gives the same stock.
+- `foldLog(events)` gives the current stock from an append-only log. The fold removes copies of an event by `id`, so each order of arrival gives the same stock. The order of the keys of an event has no effect.
+- `stockLog(storage)` keeps the log on a collection storage, one item for each event. Two copies of the log merge as a union, so a sync has no conflict.
 - `rotationDate(lot, useRate, leadDays)` gives the date to start to use a lot: `due - units / useRate - leadDays`.
 - `rotationTasks(at, lots, useRates, leadDays)` gives a task for each lot that the use does not finish before its due date, and for each lot past its due date.
 
@@ -25,4 +26,4 @@ tasksWithin(rotationTasks("2026-12-01", lots, { can: 0 }, 7), "2026-12-01", 30);
 
 ## Planned
 
-The roadmap of the repository (`docs/ROADMAP.md`) has the next items. The first items are the recurrence rule in `@mark1russell7/algebra/clock` and the tasks of checks and drills. Then come the FoodKeeper defaults as an add-on dataset, and the log on the collections of `client-store`.
+The roadmap of the repository (`docs/ROADMAP.md`) has the next items. The first item is the tasks of checks and drills, on the recurrence rule of `@mark1russell7/algebra/clock`. Then come the FoodKeeper defaults as an add-on dataset, and the inventory records on the log.

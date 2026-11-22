@@ -6,10 +6,12 @@
 
 ## . (build/index.d.ts): names
 
+type AppendResult: build/index.d.ts#AppendResult
 type Draw: build/index.d.ts#Draw
 type DrawPlan: build/index.d.ts#DrawPlan
 type DueRule: build/index.d.ts#DueRule
 type IsoDate: build/index.d.ts#IsoDate
+type LogStorage: build/index.d.ts#LogStorage
 type Lot: build/index.d.ts#Lot
 type PlaceId: build/index.d.ts#PlaceId
 type ProductYield: build/index.d.ts#ProductYield
@@ -17,6 +19,7 @@ type RemoveReason: build/index.d.ts#RemoveReason
 type RemovedLot: build/index.d.ts#RemovedLot
 type SourceId: build/index.d.ts#SourceId
 type StockEvent: build/index.d.ts#StockEvent
+type StockLog: build/index.d.ts#StockLog
 type StockState: build/index.d.ts#StockState
 type Task: build/index.d.ts#Task
 amounts: build/index.d.ts#amounts
@@ -27,9 +30,13 @@ foldLog: build/index.d.ts#foldLog
 isUsable: build/index.d.ts#isUsable
 rotationDate: build/index.d.ts#rotationDate
 rotationTasks: build/index.d.ts#rotationTasks
+stockLog: build/index.d.ts#stockLog
 tasksWithin: build/index.d.ts#tasksWithin
 
 ## Declarations
+
+### build/index.d.ts#AppendResult
+type AppendResult = "added" | "present";
 
 ### build/index.d.ts#Draw
 interface Draw {
@@ -54,6 +61,13 @@ type DueRule = {
 
 ### build/index.d.ts#IsoDate
 type IsoDate = string;
+
+### build/index.d.ts#LogStorage
+interface LogStorage {
+  get(id: string): Promise<StockEvent | undefined>;
+  getAll(): Promise<StockEvent[]>;
+  set(id: string, value: StockEvent): Promise<void>;
+}
 
 ### build/index.d.ts#Lot
 interface Lot {
@@ -110,6 +124,13 @@ type StockEvent = {
   readonly why: RemoveReason;
 };
 
+### build/index.d.ts#StockLog
+interface StockLog {
+  append(event: StockEvent): Promise<AppendResult>;
+  events(): Promise<StockEvent[]>;
+  state(): Promise<StockState>;
+}
+
 ### build/index.d.ts#StockState
 interface StockState {
   readonly lots: readonly Lot[];
@@ -149,6 +170,9 @@ export declare function rotationDate(lot: Lot, useRate: number, leadDays: number
 
 ### build/index.d.ts#rotationTasks
 export declare function rotationTasks(at: IsoDate, lots: readonly Lot[], useRates: Readonly<Record<string, number>>, leadDays: number): Task[];
+
+### build/index.d.ts#stockLog
+export declare function stockLog(storage: LogStorage): StockLog;
 
 ### build/index.d.ts#tasksWithin
 export declare function tasksWithin(tasks: readonly Task[], at: IsoDate, days: number): Task[];

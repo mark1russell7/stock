@@ -243,6 +243,13 @@ importers:
         version: 5.1.1(@types/node@26.6.6)(@vitest/coverage-v8@5.1.1)(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(tsx@4.23.15)(yaml@2.9.1))
 
   packages/stock:
+    dependencies:
+      '@mark1russell7/algebra':
+        specifier: ^0.9.10
+        version: 0.9.10
+      '@mark1russell7/rigor-generators':
+        specifier: ^0.2.0
+        version: 0.2.0
     devDependencies:
       '@mark1russell7/cue':
         specifier: ^2.0.0
@@ -478,8 +485,8 @@ packages:
       zod:
         optional: true
 
-  '@mark1russell7/algebra@0.9.9':
-    resolution: {integrity: sha512-OV6ntCDh5eW9jbuwVixMjBv2OL8bTiVGm4f3TxqN4FlepfEd7hAoNLE03mvYYV7sdChL/pYz4HOOfEejgFwU3Q==}
+  '@mark1russell7/algebra@0.9.10':
+    resolution: {integrity: sha512-PRLI84T/sJhOdddwAyTKJR8Mv3r1ux57xXIEH2zg+K7CUHTDRkuPuYT9byPy1KGfbR1dNviRHNgDM7OmesHbWw==}
     engines: {node: '>=22.19'}
     peerDependencies:
       zod: ^4.1.0
@@ -1862,7 +1869,7 @@ snapshots:
     dependencies:
       '@mark1russell7/quantity': 0.4.3
 
-  '@mark1russell7/algebra@0.9.9':
+  '@mark1russell7/algebra@0.9.10':
     dependencies:
       '@mark1russell7/quantity': 0.4.3
       '@mark1russell7/rigor-statistics': 0.2.17
@@ -1913,7 +1920,7 @@ snapshots:
 
   '@mark1russell7/service@0.9.4':
     dependencies:
-      '@mark1russell7/algebra': 0.9.9
+      '@mark1russell7/algebra': 0.9.10
       '@mark1russell7/collections': 0.11.3
       '@mark1russell7/files': 0.0.3
       '@mark1russell7/quantity': 0.4.3
