@@ -23,17 +23,19 @@ const file = {
 };
 
 describe("the import of the FoodKeeper file", () => {
-  it("keeps the products with a pantry time in days, weeks, months or years, sorted by id", () => {
+  it("keeps the products with a pantry time in days, weeks, months, years or Indefinitely, sorted by id", () => {
     const got = foodKeeperImport(file);
     expect(got.version).toEqual({ number: 9, date: "2018-09-06" });
     expect(got.products).toEqual([
       // The time from the date of purchase comes before the time of storage. The import cleans the spaces of a text.
       { id: 2, name: "Rice", subtitle: "white or wild", category: "Grains", keywords: "Rice", basis: "purchase", min: 2, max: 2, unit: "year" },
+      // A food that keeps with no limit has no range.
+      { id: 3, name: "Sugar", subtitle: null, category: "Grains", keywords: null, basis: "stored", unit: "indefinitely" },
       { id: 5, name: "Tuna", subtitle: "canned", category: "Meat / Canned", keywords: "Tuna", basis: "stored", min: 3, max: 3, unit: "year" },
       // A product with no low end gets its high end as the low end. An unknown category gives null.
       { id: 6, name: "Fruit cocktail", subtitle: null, category: null, keywords: null, basis: "stored", min: 18, max: 18, unit: "month" },
     ]);
-    expect(got.skipped).toEqual({ Indefinitely: 1, Hours: 1 });
+    expect(got.skipped).toEqual({ Hours: 1 });
   });
 
   it("refuses a file with a different structure", () => {
@@ -45,7 +47,7 @@ describe("the import of the FoodKeeper file", () => {
     const text = foodKeeperModule(foodKeeperImport(file), "ab".repeat(32));
     expect(text).toContain("version 9 of 2018-09-06, license CC0 1.0");
     expect(text).toContain(`The SHA-256 of the source file: ${"ab".repeat(32)}.`);
-    expect(text).toContain("The import keeps 3 products");
+    expect(text).toContain("The import keeps 4 products");
     expect(text).toContain('export const FOODKEEPER_VERSION = { number: 9, date: "2018-09-06" } as const;');
   });
 });

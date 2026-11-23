@@ -10,12 +10,12 @@ const byId = (id: number) => {
 
 describe("the FoodKeeper dataset", () => {
   it("has a valid pantry time for each product, and one entry for each id", () => {
-    expect(FOODKEEPER_PRODUCTS.length).toBe(290);
+    expect(FOODKEEPER_PRODUCTS.length).toBe(298);
     const ids = FOODKEEPER_PRODUCTS.map((p) => p.id);
     expect(new Set(ids).size).toBe(ids.length);
     expect([...ids].sort((a, b) => a - b)).toEqual(ids);
     for (const p of FOODKEEPER_PRODUCTS) {
-      expect(Number.isInteger(p.min) && p.min > 0 && p.min <= p.max).toBe(true);
+      if (p.unit !== "indefinitely") expect(Number.isInteger(p.min) && p.min > 0 && p.min <= p.max).toBe(true);
       expect(p.name).not.toBeNull();
     }
   });
@@ -47,6 +47,16 @@ describe("the due rules of the dataset", () => {
     const rule = foodKeeperRule(byId(338));
     expect(rule).toEqual({ kind: "days", days: 730, source: "usda-fsis-foodkeeper#338" });
     expect(dueDate(rule, "2026-11-21")).toBe("2028-11-20");
+  });
+
+  it("give the rule none, with the citation, for a food that keeps with no limit", () => {
+    // Version 128: granulated sugar (240), table salt (468) and bottled water (413) keep Indefinitely.
+    for (const id of [240, 413, 468]) expect(byId(id)).toMatchObject({ unit: "indefinitely" });
+    expect(FOODKEEPER_PRODUCTS.filter((p) => p.unit === "indefinitely")).toHaveLength(8);
+    expect(shelfLifeDays(byId(240))).toBeUndefined();
+    const rule = foodKeeperRule(byId(240));
+    expect(rule).toEqual({ kind: "none", source: "usda-fsis-foodkeeper#240" });
+    expect(dueDate(rule, "2026-11-21")).toBeUndefined();
   });
 });
 

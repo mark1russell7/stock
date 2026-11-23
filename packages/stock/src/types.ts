@@ -12,12 +12,13 @@ export type PlaceId = string;
 /**
  * The rule that gives the due date of a lot.
  * The rule `label` uses the date on the label. The rule `days` adds a count of days to the date of purchase, and cites its source.
- * The rule `none` is for a product that does not spoil, for example a tool: its lots have no due date.
+ * The rule `none` is for a product that does not spoil, for example a tool: its lots have no due date. It can cite the source
+ * that tells that the product keeps with no limit.
  */
 export type DueRule =
   | { readonly kind: "label" }
   | { readonly kind: "days"; readonly days: number; readonly source: SourceId }
-  | { readonly kind: "none" };
+  | { readonly kind: "none"; readonly source?: SourceId };
 
 /** What one unit of a product puts into a resource, and the due rule of the product. */
 export interface ProductYield {

@@ -2,7 +2,7 @@
 // The module is pure: the command scripts/foodkeeper-import.ts of the repository reads the file and writes the output.
 // No entry of the package exports this module.
 
-import type { FoodKeeperProduct } from "./foodkeeper.ts";
+import type { FoodKeeperProduct, FoodKeeperTimed } from "./foodkeeper.ts";
 
 /** The result of an import: the version of the source, the kept products and the count of each skipped pantry time. */
 export interface FoodKeeperImport {
@@ -13,7 +13,7 @@ export interface FoodKeeperImport {
 
 type Row = Readonly<Record<string, unknown>>;
 
-const UNITS: Readonly<Record<string, FoodKeeperProduct["unit"]>> = { Days: "day", Weeks: "week", Months: "month", Years: "year", Year: "year" };
+const UNITS: Readonly<Record<string, FoodKeeperTimed["unit"]>> = { Days: "day", Weeks: "week", Months: "month", Years: "year", Year: "year" };
 
 function sheet(file: unknown, name: string): Row[] {
   const sheets = (file as { sheets?: unknown } | null)?.sheets;
@@ -39,7 +39,8 @@ function isoOfUsDate(value: unknown): string {
 }
 
 /**
- * This function gives the products of a FoodKeeper file that have a pantry time in days, weeks, months or years.
+ * This function gives the products of a FoodKeeper file that have a pantry time in days, weeks, months or years, or the
+ * pantry time `Indefinitely`.
  * The time from the date of purchase (`DOP_Pantry_*`) comes first, then the time of storage (`Pantry_*`).
  * The output is sorted by id. A file with a different structure gives a `RangeError`.
  */
@@ -67,6 +68,11 @@ export function foodKeeperImport(file: unknown): FoodKeeperImport {
     ] as const;
     const time = times.find((t) => t.metric != null || t.max != null);
     if (id === undefined || name === null || !time) continue;
+    const base = { id, name, subtitle: text(p["Name_subtitle"]), category: categories.get(p["Category_ID"]) ?? null, keywords: text(p["Keywords"]), basis: time.basis };
+    if (time.metric === "Indefinitely") {
+      products.push({ ...base, unit: "indefinitely" });
+      continue;
+    }
     const unit = typeof time.metric === "string" ? UNITS[time.metric] : undefined;
     const max = int(time.max);
     if (unit === undefined || max === undefined || max <= 0) {
@@ -76,12 +82,7 @@ export function foodKeeperImport(file: unknown): FoodKeeperImport {
     }
     const min = int(time.min);
     products.push({
-      id,
-      name,
-      subtitle: text(p["Name_subtitle"]),
-      category: categories.get(p["Category_ID"]) ?? null,
-      keywords: text(p["Keywords"]),
-      basis: time.basis,
+      ...base,
       min: min !== undefined && min > 0 && min <= max ? min : max,
       max,
       unit,

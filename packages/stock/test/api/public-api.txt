@@ -42,8 +42,11 @@ tasksWithin: build/index.d.ts#tasksWithin
 
 FOODKEEPER_PRODUCTS: build/foodkeeper.d.ts#FOODKEEPER_PRODUCTS
 FOODKEEPER_SOURCE: build/foodkeeper.d.ts#FOODKEEPER_SOURCE
+FoodKeeperBase: build/foodkeeper.d.ts#FoodKeeperBase
+FoodKeeperIndefinite: build/foodkeeper.d.ts#FoodKeeperIndefinite
 FoodKeeperProduct: build/foodkeeper.d.ts#FoodKeeperProduct
 FoodKeeperSource: build/foodkeeper.d.ts#FoodKeeperSource
+FoodKeeperTimed: build/foodkeeper.d.ts#FoodKeeperTimed
 findFoodKeeper: build/foodkeeper.d.ts#findFoodKeeper
 foodKeeperRule: build/foodkeeper.d.ts#foodKeeperRule
 shelfLifeDays: build/foodkeeper.d.ts#shelfLifeDays
@@ -56,18 +59,25 @@ export declare const FOODKEEPER_PRODUCTS: readonly FoodKeeperProduct[];
 ### build/foodkeeper.d.ts#FOODKEEPER_SOURCE
 export declare const FOODKEEPER_SOURCE: FoodKeeperSource;
 
-### build/foodkeeper.d.ts#FoodKeeperProduct
-export interface FoodKeeperProduct {
+### build/foodkeeper.d.ts#FoodKeeperBase
+export interface FoodKeeperBase {
   readonly id: number;
   readonly name: string | null;
   readonly subtitle: string | null;
   readonly category: string | null;
   readonly keywords: string | null;
   readonly basis: "purchase" | "stored";
-  readonly min: number;
-  readonly max: number;
-  readonly unit: "day" | "week" | "month" | "year";
 }
+
+### build/foodkeeper.d.ts#FoodKeeperIndefinite
+export interface FoodKeeperIndefinite extends FoodKeeperBase {
+  readonly unit: "indefinitely";
+  readonly min?: never;
+  readonly max?: never;
+}
+
+### build/foodkeeper.d.ts#FoodKeeperProduct
+export type FoodKeeperProduct = FoodKeeperTimed | FoodKeeperIndefinite;
 
 ### build/foodkeeper.d.ts#FoodKeeperSource
 export interface FoodKeeperSource {
@@ -80,6 +90,13 @@ export interface FoodKeeperSource {
   readonly versionDate: string;
 }
 
+### build/foodkeeper.d.ts#FoodKeeperTimed
+export interface FoodKeeperTimed extends FoodKeeperBase {
+  readonly min: number;
+  readonly max: number;
+  readonly unit: "day" | "week" | "month" | "year";
+}
+
 ### build/foodkeeper.d.ts#findFoodKeeper
 export declare function findFoodKeeper(query: string): FoodKeeperProduct[];
 
@@ -87,7 +104,8 @@ export declare function findFoodKeeper(query: string): FoodKeeperProduct[];
 export declare function foodKeeperRule(product: FoodKeeperProduct, end?: "min" | "max"): DueRule;
 
 ### build/foodkeeper.d.ts#shelfLifeDays
-export declare function shelfLifeDays(product: FoodKeeperProduct, end?: "min" | "max"): number;
+export declare function shelfLifeDays(product: FoodKeeperTimed, end?: "min" | "max"): number;
+export declare function shelfLifeDays(product: FoodKeeperProduct, end?: "min" | "max"): number | undefined;
 
 ### build/index.d.ts#AppendResult
 type AppendResult = "added" | "present";
@@ -192,6 +210,7 @@ type DueRule = {
   readonly source: SourceId;
 } | {
   readonly kind: "none";
+  readonly source?: SourceId;
 };
 
 ### build/types.chunk.d.ts#IsoDate
